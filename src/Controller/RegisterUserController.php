@@ -6,6 +6,7 @@ use App\Dto\UserDto;
 use App\Entity\User;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,7 +20,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class RegisterUserController
 {
     #[Route('/register', name: 'register', methods: ['POST'])]
-    public function registerUser(Request $request, EntityManagerInterface $entityManager, #[MapRequestPayload] UserDto $userDto, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator): JsonResponse
+    public function registerUser(Request $request, EntityManagerInterface $entityManager, #[MapRequestPayload] UserDto $userDto, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator,  LoggerInterface $logger): JsonResponse
     {
         $errorsBag = $validator->validate($userDto);
 
@@ -31,6 +32,8 @@ class RegisterUserController
 
             return new JsonResponse($errors, Response::HTTP_BAD_REQUEST);
         }
+
+        $logger->warning("payload",[$userDto]);
 
         $user = new User();
         $user->setEmail($userDto->email)
@@ -46,8 +49,6 @@ class RegisterUserController
         } catch (UniqueConstraintViolationException $e) {
             return new JsonResponse(['email or username already exist'], Response::HTTP_BAD_REQUEST);
         }
-
-
 
         return new JsonResponse(['success' => true], Response::HTTP_OK);
     }
