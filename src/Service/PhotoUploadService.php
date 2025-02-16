@@ -7,7 +7,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class PhotoUploadService
+class PhotoUploadService implements PhotoUploadServiceInterface
 {
     public function __construct(
         #[Autowire('%kernel.project_dir%/public/')] private $publicDir,

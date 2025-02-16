@@ -34,6 +34,7 @@ class BlogPost
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\PrePersist]
     public function setDefaults(): void
     {
         $this->createdAt = new \DateTimeImmutable();
