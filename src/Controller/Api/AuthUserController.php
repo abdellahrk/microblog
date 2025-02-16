@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Api;
 
 use App\Dto\UserDto;
 use App\Entity\User;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,10 +16,10 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[AsController]
-class RegisterUserController
+class AuthUserController
 {
     #[Route('/register', name: 'register', methods: ['POST'])]
-    public function registerUser(Request $request, EntityManagerInterface $entityManager, #[MapRequestPayload] UserDto $userDto, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator,  LoggerInterface $logger): JsonResponse
+    public function registerUser(Request $request, EntityManagerInterface $entityManager, #[MapRequestPayload] UserDto $userDto, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator): JsonResponse
     {
         $errorsBag = $validator->validate($userDto);
 
@@ -33,8 +32,6 @@ class RegisterUserController
             return new JsonResponse($errors, Response::HTTP_BAD_REQUEST);
         }
 
-        $logger->warning("payload",[$userDto]);
-
         $user = new User();
         $user->setEmail($userDto->email)
             ->setUsername($userDto->username)
@@ -46,8 +43,8 @@ class RegisterUserController
         try {
             $entityManager->persist($user);
             $entityManager->flush();
-        } catch (UniqueConstraintViolationException $e) {
-            return new JsonResponse(['email or username already exist'], Response::HTTP_BAD_REQUEST);
+        } catch (UniqueConstraintViolationException|\Exception $e) {
+            return new JsonResponse(['error: '.$e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
         return new JsonResponse(['success' => true], Response::HTTP_OK);
