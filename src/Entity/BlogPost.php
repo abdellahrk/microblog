@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\BlogPostRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: BlogPostRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -14,13 +15,16 @@ class BlogPost
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
-
+    
+    #[Groups(['blog_post'])]
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
+    #[Groups(['blog_post'])]
     #[ORM\Column(type: Types::TEXT)]
     private ?string $content = null;
 
+    #[Groups(['blog_post'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
@@ -29,9 +33,11 @@ class BlogPost
     private ?User $author = null;
 
     #[ORM\Column]
+    #[Groups(['blog_post'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
+    #[Groups(['blog_post'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\Column(length: 255)]

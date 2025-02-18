@@ -13,3 +13,4 @@
 /config/jwt/*.pem
 ###< lexik/jwt-authentication-bundle ###
 /public/blog_post/
+/composer.lock
