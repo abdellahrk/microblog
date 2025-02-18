@@ -6,11 +6,12 @@ This is the backend of the microblog mobile app found in this [repo](https://git
  - [x] Registration 
  - [x] Token Login 
  - [x] Add Blog Post
- - [ ] Edit Blog Post
- - [ ] Delete Blog Post
+ - [x] Edit Blog Post
+ - [x] Delete Blog Post
  - [ ] Update User Profile
  - [ ] List User Posted Blog Posts
  - [ ] List All Blog Posts [Paginated]
  - [ ] Delete User Account
  - [ ] Like Blog Post
  - [ ] Add Comments
+ - [x] Queuing system with Symfony Messenger
