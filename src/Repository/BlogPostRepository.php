@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Entity\BlogPost;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -16,28 +18,24 @@ class BlogPostRepository extends ServiceEntityRepository
         parent::__construct($registry, BlogPost::class);
     }
 
-    //    /**
-    //     * @return BlogPost[] Returns an array of BlogPost objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('b')
-    //            ->andWhere('b.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('b.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function findBlogPostsPaginated(?int $page = 1, ?int $nbPerPage = 10): array
+    {
+        $entityManager = $this->getEntityManager();
+        $dql = "SELECT b FROM App\Entity\BlogPost b";
+        $query = $entityManager->createQuery($dql)
+            ->setFirstResult(($page - 1) * $nbPerPage)
+            ->setMaxResults($nbPerPage);
+        $paginator = new Paginator($query);
+        $results = $paginator->getQuery()->getResult();
 
-    //    public function findOneBySomeField($value): ?BlogPost
-    //    {
-    //        return $this->createQueryBuilder('b')
-    //            ->andWhere('b.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        return [
+            "total_items" => $paginator->count(),
+            "data" => $results,
+            "current_page" => $page,
+            "pages" => ceil($paginator->count()/$nbPerPage),
+            "has_previous_page" => $page - 1 != 0,
+            "has_next_page" => !($page == ceil($paginator->count() / $nbPerPage)),
+            "items_per_page" => $nbPerPage,
+        ];
+    }
 }

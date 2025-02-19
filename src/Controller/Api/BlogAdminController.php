@@ -54,6 +54,7 @@ final readonly class BlogAdminController
             try {
                 $fileName = $photoUploadService->upload($file, 'blog_post/');
                 $blogPost->setImage($fileName);
+                $blogPost->setImagePath($request->getSchemeAndHttpHost().'/api/blog_post/'.$fileName);
             } catch (FileException $e) {
                 return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
             }

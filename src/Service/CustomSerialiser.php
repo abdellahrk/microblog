@@ -21,7 +21,7 @@ class CustomSerialiser implements CustomSerialiserInterface
 
         $discriminator = new ClassDiscriminatorFromClassMetadata($classMetadataFactory);
         $dateCallback = function (object $attributeValue, object $object, string $attributeName, ?string $format = null, array $context = []): string {
-            return $attributeValue instanceof \DateTime ? $attributeValue->format(\DateTime::ATOM) : '';
+            return $attributeValue instanceof \DateTimeImmutable ? $attributeValue->format(\DateTime::W3C) : '';
         };
         $defaultContext = [
             AbstractNormalizer::CIRCULAR_REFERENCE_HANDLER => function (object $object, ?string $format, array $context): string {
@@ -30,6 +30,7 @@ class CustomSerialiser implements CustomSerialiserInterface
             AbstractNormalizer::CALLBACKS => [
                 'createdAt' => $dateCallback,
                 'updatedAt' => $dateCallback,
+                'commentedAt' => $dateCallback,
             ]
         ];
         $this->serializer = new Serializer([new ObjectNormalizer($classMetadataFactory,null,null,null,$discriminator,null,$defaultContext)], [new JsonEncoder()]);

@@ -3,9 +3,13 @@
 namespace App\Entity;
 
 use App\Repository\BlogPostRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 #[ORM\Entity(repositoryClass: BlogPostRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -16,32 +20,49 @@ class BlogPost
     #[ORM\Column]
     private ?int $id = null;
     
-    #[Groups(['blog_post'])]
+    #[Groups(['blog_post', 'blog_posts'])]
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
-    #[Groups(['blog_post'])]
+    #[Groups(['blog_post', 'blog_posts'])]
     #[ORM\Column(type: Types::TEXT)]
     private ?string $content = null;
 
-    #[Groups(['blog_post'])]
+    #[Groups(['blog_post', 'blog_posts'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
+    #[Groups(['blog_post', 'blog_posts'])]
     #[ORM\ManyToOne(inversedBy: 'blogPosts')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $author = null;
 
     #[ORM\Column]
-    #[Groups(['blog_post'])]
+    #[Groups(['blog_post', 'blog_posts'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
-    #[Groups(['blog_post'])]
+    #[Groups(['blog_post', 'blog_posts'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[Groups(['blog_post', 'blog_posts'])]
     #[ORM\Column(length: 255)]
     private ?string $slug = null;
+
+    #[Groups(['blog_post', 'blog_posts'])]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imagePath = null;
+
+    /**
+     * @var Collection<int, Comment>
+     */
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'blogPost', orphanRemoval: true)]
+    private Collection $comments;
+
+    public function __construct()
+    {
+        $this->comments = new ArrayCollection();
+    }
 
     #[ORM\PrePersist]
     public function setDefaults(): void
@@ -135,6 +156,48 @@ class BlogPost
     public function setSlug(string $slug): static
     {
         $this->slug = $slug;
+
+        return $this;
+    }
+
+    public function getImagePath(): ?string
+    {
+        return $this->imagePath;
+    }
+
+    public function setImagePath(?string $imagePath): static
+    {
+        $this->imagePath = $imagePath;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Comment>
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(Comment $comment): static
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments->add($comment);
+            $comment->setBlogPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComment(Comment $comment): static
+    {
+        if ($this->comments->removeElement($comment)) {
+            // set the owning side to null (unless already changed)
+            if ($comment->getBlogPost() === $this) {
+                $comment->setBlogPost(null);
+            }
+        }
 
         return $this;
     }
