@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Command;
+namespace App\Domain\Shared\Command;
 
 final readonly class DeleteFile
 {
