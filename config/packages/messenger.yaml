@@ -11,7 +11,7 @@ framework:
 
         routing:
             # Route your messages to the transports
-             'App\Domain\Command\DeleteFile': async
+             'App\Domain\Shared\Command\DeleteFile': async
 
 # when@test:
 #    framework:

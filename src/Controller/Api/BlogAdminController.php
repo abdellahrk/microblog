@@ -2,7 +2,7 @@
 
 namespace App\Controller\Api;
 
-use App\Domain\Command\DeleteFile;
+use App\Domain\Shared\Command\DeleteFile;
 use App\Dto\BlogPostDto;
 use App\Dto\ObjectDtoInterface;
 use App\Entity\BlogPost;
