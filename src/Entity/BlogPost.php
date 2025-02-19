@@ -18,6 +18,7 @@ class BlogPost
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['blog_post', 'blog_posts'])]
     private ?int $id = null;
     
     #[Groups(['blog_post', 'blog_posts'])]
@@ -53,6 +54,7 @@ class BlogPost
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imagePath = null;
 
+    #[Groups(['blog_post'])]
     /**
      * @var Collection<int, Comment>
      */
