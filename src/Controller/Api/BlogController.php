@@ -14,7 +14,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
+use OpenApi\Attributes as OA;
 
+
+#[OA\Tag(name: 'BlogPost', description: 'Blog post')]
 #[AsController]
 #[Route('/blog')]
 final readonly class BlogController
@@ -49,14 +52,14 @@ final readonly class BlogController
     {
         $page = $request->query->getInt('page', 1);
         $nbPerPage = $request->query->getInt('nbPerPage', 10);
+
         $user = $userRepository->findOneBy(['slug' => $request->get('slug')]);
+
         if (!($user instanceof User)) {
             return new JsonResponse(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
         }
 
-
         $blogPosts = $blogPostRepository->getBlogPostsByAuthor($user, $page, $nbPerPage);
-
         $serializedBlogPosts = $this->customSerialiser->serialise($blogPosts, ['blog_posts']);
 
         return new JsonResponse($serializedBlogPosts, Response::HTTP_OK, [], true);

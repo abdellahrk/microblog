@@ -25,7 +25,9 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use OpenApi\Attributes as OA;
 
+#[OA\Tag(name: 'Blog Post Admin', description: 'Every blog post administration endpoint')]
 #[Route('/blog-admin')]
 #[IsGranted("ROLE_USER")]
 #[AsController]
@@ -39,7 +41,7 @@ final readonly class BlogAdminController
 
     }
 
-    #[Route('/add')]
+    #[Route('/add', name: 'blog-admin-add', methods: ['POST'])]
     public function addBlogPost(#[MapRequestPayload] BlogPostDto $blogPostDto, #[CurrentUser] User $user, Request $request, PhotoUploadServiceInterface $photoUploadService, SluggerInterface $slugger): JsonResponse
     {
         $blogPost = new BlogPost();
