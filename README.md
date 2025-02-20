@@ -23,3 +23,4 @@ A simple Flutter app at [microblog mobile app](https://github.com/abdellahrk/mic
  - [x] Add Comments
  - [x] Queuing system with Symfony Messenger
  - [ ] Admin Panel
+ - [ ] API Documentation
