@@ -3,8 +3,11 @@
 namespace App\Repository;
 
 use App\Entity\BlogPost;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -25,6 +28,26 @@ class BlogPostRepository extends ServiceEntityRepository
         $query = $entityManager->createQuery($dql)
             ->setFirstResult(($page - 1) * $nbPerPage)
             ->setMaxResults($nbPerPage);
+
+        return $this->paginateResult($page, $nbPerPage, $query);
+
+    }
+
+    public function getBlogPostsByAuthor(User $author, ?int $page =1, ?int $nbPerPage=10): array
+    {
+        $entityManager = $this->getEntityManager();
+        $dql = "SELECT b FROM App\Entity\BlogPost b where b.author = :author";
+        $query = $entityManager->createQuery($dql)
+            ->setParameter('author',$author)
+            ->setFirstResult(($page - 1) * $nbPerPage)
+            ->setMaxResults($nbPerPage);
+
+        return $this->paginateResult($page, $nbPerPage, $query);
+    }
+
+
+    private function paginateResult(int $page, int $nbPerPage, Query $query): array
+    {
         $paginator = new Paginator($query);
         $results = $paginator->getQuery()->getResult();
 

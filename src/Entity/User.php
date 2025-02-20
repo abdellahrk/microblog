@@ -46,7 +46,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, BlogPost>
      */
-    #[ORM\OneToMany(targetEntity: BlogPost::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: BlogPost::class, mappedBy: 'author')]
     private Collection $blogPosts;
 
     /**
@@ -190,7 +190,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->blogPosts->contains($blogPost)) {
             $this->blogPosts->add($blogPost);
-            $blogPost->setUser($this);
+            $blogPost->setAuthor($this);
         }
 
         return $this;
@@ -200,8 +200,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->blogPosts->removeElement($blogPost)) {
             // set the owning side to null (unless already changed)
-            if ($blogPost->getUser() === $this) {
-                $blogPost->setUser(null);
+            if ($blogPost->getAuthor() === $this) {
+                $blogPost->setAuthor(null);
             }
         }
 
