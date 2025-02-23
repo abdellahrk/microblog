@@ -51,7 +51,7 @@ final readonly class BlogController
     public function getUserBlogPosts(UserRepository $userRepository, Request $request, BlogPostRepository $blogPostRepository): JsonResponse
     {
         $page = $request->query->getInt('page', 1);
-        $nbPerPage = $request->query->getInt('nbPerPage', 10);
+        $nbPerPage = $request->query->getInt('nbPerPage', 30);
 
         $user = $userRepository->findOneBy(['slug' => $request->get('slug')]);
 
