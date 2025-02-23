@@ -1,4 +1,4 @@
-/.ddev
+/.ddev/
 ###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php
@@ -14,4 +14,4 @@
 ###< lexik/jwt-authentication-bundle ###
 /public/blog_post/
 /composer.lock
-
+/.idea/

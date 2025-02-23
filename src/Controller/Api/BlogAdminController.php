@@ -42,7 +42,13 @@ final readonly class BlogAdminController
     }
 
     #[Route('/add', name: 'blog-admin-add', methods: ['POST'])]
-    public function addBlogPost(#[MapRequestPayload] BlogPostDto $blogPostDto, #[CurrentUser] User $user, Request $request, PhotoUploadServiceInterface $photoUploadService, SluggerInterface $slugger): JsonResponse
+    public function addBlogPost(
+        #[MapRequestPayload] BlogPostDto $blogPostDto, 
+        #[CurrentUser] User $user, 
+        Request $request, 
+        PhotoUploadServiceInterface $photoUploadService, 
+        SluggerInterface $slugger,
+    ): JsonResponse
     {
         $blogPost = new BlogPost();
         $blogPost->setTitle($blogPostDto->title)
@@ -69,7 +75,7 @@ final readonly class BlogAdminController
             return new JsonResponse(['error' => $exception->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        return new JsonResponse(['blogPostId' => $blogPost->getId()], Response::HTTP_CREATED);
+        return new JsonResponse(['blogPostId' => $blogPost->getId(), 'slug' => $blogPost->getSlug()], Response::HTTP_CREATED);
     }
 
     #[Route('/edit/{id}', name: 'edit-blog-post', methods: ['POST'])]
