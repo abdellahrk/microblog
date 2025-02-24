@@ -5,6 +5,15 @@ It can be used with any front-end framework or mobile app.
 
 Api documentation is found at `base_url/api/doc`
 
+### Admin User
+Only admin users can access the admin dashboard at `base_url/admin`
+
+##### Add admin user
+Many admin users can be add in the system with the following command
+```bash
+bin/console app:add-admin-user
+```
+
 A simple Flutter app at [microblog mobile app](https://github.com/abdellahrk/microblog-mobile-app) will be consuming this backend 
 
 ### Features 
