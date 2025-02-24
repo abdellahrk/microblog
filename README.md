@@ -21,11 +21,11 @@ A simple Flutter app at [microblog mobile app](https://github.com/abdellahrk/mic
  - [x] List All Blog Posts [Paginated]
  - [ ] Delete User Account
  - [ ] Like Blog Post
- - [ ] Email Notifications
-   - [ ] Welcome Email
+ - [x] Email Notifications [WIP]
+   - [x] Welcome Email
    - [ ] Activity Notification such as following an author, blog post like, comment added and more
    - [ ] Reminders like completing drafts, verifying accounts and more
  - [x] Add Comments
  - [x] Queuing system with Symfony Messenger
- - [ ] Admin Panel
+ - [x] Admin Panel
  - [x] Api Documentation

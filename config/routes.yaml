@@ -1,9 +1,17 @@
-controllers:
+admin:
+    resource:
+        path: ../src/Controller/Admin
+        namespace: App\Controller\Admin
+    type: attribute
+
+api:
     resource:
         path: ../src/Controller/Api
         namespace: App\Controller\Api
     type: attribute
     prefix: '/api'
+
+
 api_login_check:
     path: /api/login_check
 
