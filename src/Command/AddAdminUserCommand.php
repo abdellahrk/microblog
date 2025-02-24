@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Domain\User\Event\UserRegistered;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -13,6 +14,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
@@ -27,6 +29,7 @@ class AddAdminUserCommand extends Command
         private readonly EntityManagerInterface $entityManager,
         private readonly UserPasswordHasherInterface $userPasswordHasher,
         private readonly SluggerInterface $slugger,
+        private EventDispatcherInterface $eventDispatcher,
     )
     {
         parent::__construct();
@@ -87,6 +90,8 @@ class AddAdminUserCommand extends Command
         $this->entityManager->flush();
 
         $io->success('New admin user has been created. You can log in with email or username');
+        
+        $this->eventDispatcher->dispatch(new UserRegistered($user->getId()));
 
         return Command::SUCCESS;
     }
