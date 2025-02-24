@@ -35,17 +35,6 @@ class AuthUserController
         SluggerInterface $slugger
     ): JsonResponse
     {
-        $errorsBag = $validator->validate($userDto);
-
-        if (count($errorsBag) > 0) {
-            $errors = [];
-            foreach ($errorsBag as $error) {
-                $errors[$error->getCause()] = $error->getMessage();
-            }
-
-            return new JsonResponse($errors, Response::HTTP_BAD_REQUEST);
-        }
-
         $user = new User();
         $user->setEmail($userDto->email)
             ->setUsername($userDto->username)

@@ -13,6 +13,18 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        admin:
+            pattern: ^/admin
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                #                enable_csrf: true
+                ##                enable_csrf: true
+                default_target_path: '/admin'
+                always_use_default_target_path: true
+
+            logout:
+                path: app_logout
         api:
             pattern: ^/api
             stateless: true
@@ -40,6 +52,8 @@ security:
     access_control:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/(login|token/refresh), roles: PUBLIC_ACCESS }
+        - { path: /admin/login, roles: PUBLIC_ACCESS }
+        - { path: ^/admin, roles: ROLE_ADMIN }
 
 when@test:
     security:
