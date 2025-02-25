@@ -78,30 +78,26 @@ final readonly class BlogAdminController
         return new JsonResponse(['blogPostId' => $blogPost->getId(), 'slug' => $blogPost->getSlug()], Response::HTTP_CREATED);
     }
 
-    #[Route('/edit/{id}', name: 'edit-blog-post', methods: ['POST'])]
-    public function updateBlogPost(BlogPost $blogPost, Request $request, ObjectDtoInterface $objectDto, PhotoUploadServiceInterface $photoUploadService, #[Autowire('%kernel.project_dir%/public/')] $publicDir,): JsonResponse
+    
+    #[IsGranted('edit', 'blogPost')]
+    #[Route('/edit/{id}', name: 'edit-blog-post', methods: ['PUT'], format: 'json')]
+    public function updateBlogPost(
+        BlogPost $blogPost,
+        Request $request,
+        ObjectDtoInterface $objectDto,
+    ): JsonResponse
     {
         $payload = $request->getPayload();
         $data['title'] = $payload->get('title');
         $data['content'] = $payload->get('content');
         $objectDto->hydrate($data, $blogPost);
 
-        if (count($request->files) > 0) {
-            $file = $request->files->get("image");
-            try {
-                $this->messageBus->dispatch(new DeleteFile($publicDir.'blog_post/'.$blogPost->getImage()));
-                $filename = $photoUploadService->upload($file, 'blog_post/');
-                $blogPost->setImage($filename);
-            } catch (FileException|ExceptionInterface $e) {
-                $this->logger->error($e->getMessage());
-            }
-        }
-
         return new JsonResponse(['blogPostId' => $blogPost->getId()], Response::HTTP_OK);
     }
 
-    #[Route('/delete/{id}', name: 'delete-blog-post', methods: ['DELETE'])]
-    public function deleteBlogPost(Request $request, #[Autowire('%kernel.project_dir%/public/')] $publicDir, BlogPostRepository $blogPostRepository): JsonResponse
+    #[IsGranted('delete', 'blogPost')]
+    #[Route('/delete/{id}', name: 'delete-blog-post', methods: ['DELETE'], format: 'json')]
+    public function deleteBlogPost(BlogPost $blogPost, Request $request, #[Autowire('%kernel.project_dir%/public/')] $publicDir, BlogPostRepository $blogPostRepository): JsonResponse
     {
         $blogPost = $blogPostRepository->find($request->get('id'));
         if (!($blogPost instanceof BlogPost)) {
