@@ -25,7 +25,7 @@ A simple Flutter app at [microblog mobile app](https://github.com/abdellahrk/mic
  - [x] Get Single Blog Post with Comments [maybe with pagination]
  - [x] Get Paginated Blog Posts
  - [x] Delete Blog Post
- - [ ] Update User Profile
+ - [x] Update User Profile
  - [x] List User Posted Blog Posts
  - [x] List All Blog Posts [Paginated]
  - [ ] Delete User Account

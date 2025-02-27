@@ -11,6 +11,9 @@ final readonly class ObjectDto implements ObjectDtoInterface
     public function hydrate(array $data, object $object): object
     {
         foreach ($data as $classProperty => $value) {
+            if (null === $value) {
+                continue;
+            }
             if (property_exists($object, $classProperty)) {
                 $method = 'set' . ucfirst($classProperty);
                 $object->$method($value);
