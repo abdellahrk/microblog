@@ -2,6 +2,9 @@
 
 namespace App\Domain\Notification\Command;
 
+use Symfony\Component\Messenger\Attribute\AsMessage;
+
+#[AsMessage('async')]
 final readonly class SendNotificationCommand
 {
     public function __construct(
