@@ -6,5 +6,5 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 interface PhotoUploadServiceInterface
 {
-    public function upload(UploadedFile $file, string $folder): string;
+    public function upload(UploadedFile $uploadedFile, string $uploadDirectory): string;
 }
