@@ -32,6 +32,7 @@ A simple Flutter app at [microblog mobile app](https://github.com/abdellahrk/mic
  - [ ] Like Blog Post
  - [x] Email Notifications [WIP]
    - [x] Welcome Email
+   - [x] Account activation and reactivation
    - [ ] Activity Notification such as following an author, blog post like, comment added and more
    - [ ] Reminders like completing drafts, verifying accounts and more
  - [x] Add Comments
