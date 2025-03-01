@@ -80,6 +80,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setDefaults(): void
     {
         $this->joinedAt = new \DateTimeImmutable();
+        $this->isActive = true;
     }
 
     public function getId(): ?int
