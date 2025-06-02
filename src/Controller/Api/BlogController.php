@@ -39,6 +39,17 @@ final readonly class BlogController
         return  new JsonResponse($blogPostsData, Response::HTTP_OK, []);
     }
 
+    #[Route('/articles-home', name: 'blog.posts.home', methods: ['GET'])]
+    public function getHomePageBlogPosts(
+        BlogPostRepository $blogPostRepository
+    ): JsonResponse
+    {
+        $blogPostsData = $blogPostRepository->findBy([], orderBy: ['createdAt' => 'DESC'], limit: 10, offset: 0);;
+
+        $blogPosts = $this->customSerialiser->serialise($blogPostsData, ['blog_posts']);
+        return  new JsonResponse($blogPosts, Response::HTTP_OK, [], true);
+    }
+
     #[Route('/{slug}', name: 'blog.show', methods: ['GET'])]
     public function getBlogPost( #[MapEntity(mapping: ['slug' => 'slug'])] BlogPost $blogPost, Request $request, LoggerInterface $logger): JsonResponse
     {
