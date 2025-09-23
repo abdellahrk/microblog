@@ -6,18 +6,17 @@ use App\Dto\ObjectDtoInterface;
 use App\Dto\UpdateUserDto;
 use App\Entity\User;
 use App\Service\PhotoUploadServiceInterface;
+use App\Shared\Persistence\PersistenceManagerInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
+use Rami\ProblemDetailBundle\ProblemResponse\ProblemDetailsJsonResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\HttpKernel\Attribute\MapUploadedFile;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Csrf\TokenStorage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use OpenApi\Attributes as OA;
@@ -25,11 +24,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 
 #[OA\Tag(name: 'User Endpoints', description: 'User endpoints')]
-//#[IsGranted("ROLE_USER")]
-#[AsController]
-class UserController
+#[IsGranted("ROLE_USER")]
+final readonly class UserController
 {
-    public function __construct(private LoggerInterface $logger) {}
+    public function __construct(
+        private PersistenceManagerInterface $persistenceManager,
+    ) {}
 
     #[OA\Put(
         path: '/user/{slug}',
@@ -74,16 +74,20 @@ class UserController
     }
 
     #[Route('/user/update-password', name: 'app_api_user_update_password', methods: ['PUT'])]
-    public function updatePassword(#[CurrentUser] User $user, Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): JsonResponse
+    public function updatePassword(
+        #[CurrentUser] User $user,
+        Request $request,
+        UserPasswordHasherInterface $passwordHasher
+    ): Response
     {
         $password = $request->getPayload()->get('password');
 
         if (null === $password) {
-            return new JsonResponse(['success' => false, 'message' => 'Password is required'], Response::HTTP_BAD_REQUEST);
+            return new ProblemDetailsJsonResponse(Response::HTTP_BAD_REQUEST, title: 'Bad Request', detail: 'Password is require');
         }
 
         $passwordHasher->hashPassword($user, $password);
-        $entityManager->flush();
+        $this->persistenceManager->flush();
 
         return new JsonResponse(['success' => true, 'message' => 'Your password has been updated'], Response::HTTP_OK);
     }

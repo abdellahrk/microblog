@@ -7,14 +7,20 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Attribute\Context;
+use Rami\EntityKitBundle\Common\Attributes\Slugged;
+use Rami\EntityKitBundle\Common\Interfaces\Slugged\SluggedInterface;
+use Rami\EntityKitBundle\Common\Interfaces\TimeStamped\TimeStampedInterface;
+use Rami\EntityKitBundle\Entity\Traits\SluggedTrait;
+use Rami\EntityKitBundle\Entity\Traits\TimeStampedTrait;
 use Symfony\Component\Serializer\Attribute\Groups;
-use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
+#[Slugged(['title'])]
 #[ORM\Entity(repositoryClass: BlogPostRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-class BlogPost
+class BlogPost implements SluggedInterface, TimeStampedInterface
 {
+    use SluggedTrait, TimeStampedTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -40,15 +46,15 @@ class BlogPost
 
     #[ORM\Column]
     #[Groups(['blog_post', 'blog_posts'])]
-    private ?\DateTimeImmutable $createdAt = null;
+    protected ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
     #[Groups(['blog_post', 'blog_posts'])]
-    private ?\DateTimeImmutable $updatedAt = null;
+    protected ?\DateTimeImmutable $updatedAt = null;
 
     #[Groups(['blog_post', 'blog_posts'])]
     #[ORM\Column(length: 255)]
-    private ?string $slug = null;
+    protected ?string $slug = null;
 
     #[Groups(['blog_post', 'blog_posts'])]
     #[ORM\Column(length: 255, nullable: true)]
@@ -64,13 +70,6 @@ class BlogPost
     public function __construct()
     {
         $this->comments = new ArrayCollection();
-    }
-
-    #[ORM\PrePersist]
-    public function setDefaults(): void
-    {
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -146,18 +145,6 @@ class BlogPost
     public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
-
-        return $this;
-    }
-
-    public function getSlug(): ?string
-    {
-        return $this->slug;
-    }
-
-    public function setSlug(string $slug): static
-    {
-        $this->slug = $slug;
 
         return $this;
     }

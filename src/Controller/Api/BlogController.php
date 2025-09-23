@@ -8,6 +8,7 @@ use App\Repository\BlogPostRepository;
 use App\Repository\UserRepository;
 use App\Service\CustomSerialiserInterface;
 use Psr\Log\LoggerInterface;
+use Rami\ProblemDetailBundle\ProblemResponse\ProblemDetailsJsonResponse;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,8 +25,7 @@ final readonly class BlogController
 {
     public function __construct(
         private CustomSerialiserInterface $customSerialiser,
-    )
-    {
+    ) {
     }
 
     #[Route('/all', name: 'blog.posts.index', methods: ['GET'])]
@@ -42,13 +42,12 @@ final readonly class BlogController
     #[Route('/{slug}', name: 'blog.show', methods: ['GET'])]
     public function getBlogPost( #[MapEntity(mapping: ['slug' => 'slug'])] BlogPost $blogPost, Request $request, LoggerInterface $logger): JsonResponse
     {
-        $logger->warning("base url: ", [$request->getSchemeAndHttpHost()]);
         $blog = $this->customSerialiser->serialise($blogPost, ['blog_post']);
         return new JsonResponse($blog, Response::HTTP_OK, [], true);
     }
 
     #[Route('/by/{slug}', name: 'blog.posts.by.user', methods: ['GET'])]
-    public function getUserBlogPosts(UserRepository $userRepository, Request $request, BlogPostRepository $blogPostRepository): JsonResponse
+    public function getUserBlogPosts(UserRepository $userRepository, Request $request, BlogPostRepository $blogPostRepository): Response
     {
         $page = $request->query->getInt('page', 1);
         $nbPerPage = $request->query->getInt('nbPerPage', 30);
@@ -56,7 +55,7 @@ final readonly class BlogController
         $user = $userRepository->findOneBy(['slug' => $request->get('slug')]);
 
         if (!($user instanceof User)) {
-            return new JsonResponse(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
+            return new ProblemDetailsJsonResponse(Response::HTTP_NOT_FOUND, title: 'Not Found', detail: sprintf('User with slug "%s" not found', $request->get('slug')));
         }
 
         $blogPosts = $blogPostRepository->getBlogPostsByAuthor($user, $page, $nbPerPage);

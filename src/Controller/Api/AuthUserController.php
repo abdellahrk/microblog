@@ -5,18 +5,16 @@ namespace App\Controller\Api;
 use App\Domain\User\Event\UserRegistered;
 use App\Dto\UserDto;
 use App\Entity\User;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Shared\Persistence\PersistenceManagerInterface;
+use Rami\ProblemDetailBundle\ProblemResponse\ProblemDetailsJsonResponse;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use OpenApi\Attributes as OA;
 
 
@@ -26,29 +24,31 @@ class AuthUserController
 {
     #[Route('/register', name: 'register', methods: ['POST'])]
     public function registerUser(
-        Request $request,
-        EntityManagerInterface $entityManager,
         #[MapRequestPayload] UserDto $userDto,
         UserPasswordHasherInterface $passwordHasher,
-        ValidatorInterface $validator,
         EventDispatcherInterface $eventDispatcher,
-        SluggerInterface $slugger
-    ): JsonResponse
+        SluggerInterface $slugger,
+        PersistenceManagerInterface $persistenceManager,
+    ): Response
     {
         $user = new User();
+
+        $existingUser = $persistenceManager->getRepository(User::class)->findOneBy(['email' => $userDto->email]);
+
+        if ($existingUser instanceof User) {
+            return new ProblemDetailsJsonResponse(Response::HTTP_CONFLICT, title: 'Email is taken', detail: sprintf('%s email is taken', $userDto->email));
+        }
         $user->setEmail($userDto->email)
             ->setUsername($userDto->username)
             ->setPassword($passwordHasher->hashPassword($user, $userDto->password))
             ->setFullName($userDto->fullName)
             ->setRoles(['ROLE_USER', 'ROLE_AUTHOR'])
-            ->setSlug(strtolower($slugger->slug($user->getFullName())))
-        ;
+            ->setSlug(strtolower($slugger->slug($user->getFullName())));
 
         try {
-            $entityManager->persist($user);
-            $entityManager->flush();
-        } catch (UniqueConstraintViolationException|\Exception $e) {
-            return new JsonResponse(['error: '.$e->getMessage()], Response::HTTP_BAD_REQUEST);
+            $persistenceManager->persistAndFlush($user);
+        } catch (\Exception $e) {
+            return new ProblemDetailsJsonResponse(Response::HTTP_BAD_REQUEST, title: 'Bad Request', detail: sprintf('%s', $e->getMessage()));
         }
 
         $eventDispatcher->dispatch(new UserRegistered($user->getId()));
